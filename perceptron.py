@@ -1,69 +1,60 @@
 import numpy as np
-
 # Setting the random seed, feel free to change it and see different solutions.
-np.random.seed ( 42 )
-
+np.random.seed(42)
 
 def stepFunction(t):
     if t >= 0:
         return 1
     return 0
 
-
 def prediction(X, W, b):
-    return stepFunction ( (np.matmul ( X, W ) + b)[0] )
+    return stepFunction((np.matmul(X,W)+b)[0])
 
-
-# Fill in the code below to implement the perceptron trick.
+# Code below to implement the perceptron trick.
 # The function should receive as inputs the data X, the labels y,
 # the weights W (as an array), and the bias b,
 # update the weights and bias W, b, according to the perceptron algorithm,
 # and return W and b.
-def perceptronStep(X, y, W, b, learn_rate=0.01):
-    for i in range ( len ( X ) ):
-        y_hat = prediction ( X[i], W, b )
-        # Prediciton can be either 0 or 1
-        # Consider a step function graph: Prediction can have 2 values
-        # Either 0 or 1
-        # if a point has +ve labels and tends to 1 i.e. value of point is 1,
-        # but still prediction turns out to be 0 means :
-        # Positive point lying in negative region
-        if y[i] - y_hat == 1:
-            # We need to sum weights and bias values in order to bring linear equation closer
-            W[0] += X[i][0] * learn_rate
-            W[1] += X[i][1] * learn_rate
-            # need not to multiply bias because here bias is considerd as 1
-            # to make calculation better
+def perceptronStep(X, y, W, b, learn_rate = 0.01):
+    for i in range(len(X)):
+        # Prediction score for each point
+        y_hat = prediction(X[i], W, b)
+        '''code is bases on perceptron trick
+        For prediction we are using the step function.
+        Output of step function is either 0 or 1
+        1 for the points classified as 0 and positive
+        0 for the points classified as negative
+        if prediction is negative ie. 0 but point label is +ve label ie. 1
+        then add alpha*p, alpha*q and alpha*b to w1, w2 and b respectively
+        '''
+        if y[i]-y_hat == 1:
+            W[0] += X[i][0]*learn_rate
+            W[1] += X[i][1]*learn_rate
             b += learn_rate
-
-        # if point is negative point means it's value tends to 0
-        # and prediction(y_hat turns) turns out to be 1
-        # That implies -ve point is lying in + area
-        elif y[i] - y_hat == -1:
-            # We need to subtract weights and bias to bring linear equation closer
-            W[0] -= X[i][0] * learn_rate
-            W[1] -= X[i][1] * learn_rate
-            # need not to multiply bias because here bias is considerd as 1
-            # to make calculation better
+        
+        '''if prediction is positive i.e 1 but point has been label as -ve i.e. 0
+        then subtract alpha*p, alpha*q and alpha*b to w1, w2 and b respectively
+        '''
+        if y[i]-y_hat == -1:
+            W[0] -= X[i][0]*learn_rate
+            W[1] -= X[i][1]*learn_rate
             b -= learn_rate
-
     return W, b
-
-
+    
 # This function runs the perceptron algorithm repeatedly on the dataset,
 # and returns a few of the boundary lines obtained in the iterations,
 # for plotting purposes.
 # Feel free to play with the learning rate and the num_epochs,
 # and see your results plotted below.
-def trainPerceptronAlgorithm(X, y, learn_rate=0.01, num_epochs=25):
-    x_min, x_max = min ( X.T[0] ), max ( X.T[0] )
-    y_min, y_max = min ( X.T[1] ), max ( X.T[1] )
-    W = np.array ( np.random.rand ( 2, 1 ) )
-    b = np.random.rand ( 1 )[0] + x_max
+def trainPerceptronAlgorithm(X, y, learn_rate = 0.01, num_epochs = 25):
+    x_min, x_max = min(X.T[0]), max(X.T[0])
+    y_min, y_max = min(X.T[1]), max(X.T[1])
+    W = np.array(np.random.rand(2,1))
+    b = np.random.rand(1)[0] + x_max
     # These are the solution lines that get plotted below.
     boundary_lines = []
-    for i in range ( num_epochs ):
+    for i in range(num_epochs):
         # In each epoch, we apply the perceptron step.
-        W, b = perceptronStep ( X, y, W, b, learn_rate )
-        boundary_lines.append ( (-W[0] / W[1], -b / W[1]) )
+        W, b = perceptronStep(X, y, W, b, learn_rate)
+        boundary_lines.append((-W[0]/W[1], -b/W[1]))
     return boundary_lines
